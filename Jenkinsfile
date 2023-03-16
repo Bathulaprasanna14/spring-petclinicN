@@ -1,23 +1,25 @@
-pipeline{
-    agent { JDK_17 }
-    satges {
-        stage {
-            steps ('vcs') {
-                git url: 'https://github.com/Sangojupavan/spring-petclinic.git',
-                    branch: 'declarative'
+pipeline {
+    agent { label JDK-17 }
+    triggers { pollSCM('* * * * *') }
+    stages {
+        stage ('vcs') {
+            steps {
+                git url: 'https://github.com/Bathulaprasanna14/spring-petclinicN.git',
+                    branch: 'develop'
+            }    
+        }
+        stage ('build') {
+            steps {
+            sh 'mvn package'
             }
         }
-        stage {
-            steps ('pacakge') {
-                sh 'mvn package'
+        
+        stage('postbuild') {
+            steps {
+                archiveArtifacts artifacts: '**/target/*.jar',
+                                 onlyIfSuccessful: true
+                junit testResults: '**/surefire-reports/*.xml'                    
             }
-        }
-        stage {
-            steps ('post build') {
-                archiveArtifacts artifacts: '**/target/gameoflife.war',
-                                 onlyIFSuccessfull: true
-                junit testResults: '**/surefire-reports/TEST-*.xml'                 
-            }
-        }
+        }                                                   
     }
 }
